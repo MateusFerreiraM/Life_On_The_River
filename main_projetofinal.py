@@ -7,17 +7,21 @@ from PPlay.mouse import Mouse
 from menu_projetofinal import Menu
 from ranking import Ranking
 import variables
-import pygame
 import random
+import pygame
 
-janela = Window(1000,600)
-janela.set_title = ("Life on the River")
-fundojogo = Sprite("background_trabalhofinal.png")
-fundojogo.x = 0
-fundojogo.y = 0
-fundojogo2 = Sprite("background_trabalhofinal2.png")
-fundojogo2.x = 1000
+janela = Window(1000, 600)
+janela.set_title("Life on the River") # Usando parênteses para chamar a função
+fundojogo1 = Sprite("fundo_jogo.png") 
+fundojogo1.x = 0
+fundojogo1.y = 0
+imagem_invertida = pygame.transform.flip(fundojogo1.image, True, False)
+
+fundojogo2 = Sprite("fundo_jogo.png") # Carregamos a imagem original novamente só para criar o objeto
+fundojogo2.image = imagem_invertida   # AGORA substituímos pela imagem invertida
+fundojogo2.x = fundojogo1.width      # Posiciona ao lado da primeira
 fundojogo2.y = 0
+
 teclado = janela.get_keyboard()
 player = Sprite("burglar.png", 9)
 playerabaixado = Sprite("burglar_state2.png")
@@ -74,16 +78,18 @@ sorteioinimigos = 100
 inimigos = 0
 velheli = 100
 mouse = Mouse()
+menu = Menu(janela) # Crie o menu uma vez, fora do loop
+
 while True:
     if variables.game_state == 1:
-        janela.set_title = ("Life on the River")
-        menu = Menu(janela)
+        janela.set_title("Life on the River - Menu")
+        menu.run() # Executa a lógica do menu
     elif variables.game_state == 2:
         janela.set_background_color([0,0,0])
-        fundojogo.draw()
+        fundojogo1.draw()
         fundojogo2.draw()
-        if fundojogo.x <= -1000:
-            fundojogo.x = 1000
+        if fundojogo1.x <= -1000:
+            fundojogo1.x = 1000
         if fundojogo2.x <= -1000:
             fundojogo2.x = 1000
         if pulo == False and pulomaximo == False and immunity == False :
@@ -290,7 +296,7 @@ while True:
         elif pontos >= 4000:
             variables.dificuldade = 4
         
-        fundojogo.x -= 160 * janela.delta_time() * variables.dificuldade
+        fundojogo1.x -= 160 * janela.delta_time() * variables.dificuldade
         fundojogo2.x -= 160 * janela.delta_time() * variables.dificuldade
         money_bag.draw()
         bullet.draw()
@@ -303,7 +309,8 @@ while True:
     elif variables.game_state == 3:
         ranking = Ranking(janela)
         ranking.update()
-    elif variables.game_state == 4:
-        janela.close()
-    
+        
+    elif variables.game_state == 4: # Lógica de sair foi movida para o menu
+        janela.close() # Garante que o jogo feche se o estado 4 for chamado de outro lugar
+        
     janela.update()

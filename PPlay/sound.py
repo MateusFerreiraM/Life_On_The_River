@@ -1,9 +1,8 @@
-# coding= utf-8
-
 import pygame
 import pygame.mixer
 
 # Initizalizes pygame's modules
+pygame.init()
 """Sound é uma classe de controle dos sons do jogo - efeitos, música"""
 class Sound():
     """ATENÇÃO! O arquivo passado deve ser .OGG!!! Se não pode gerar problemas."""
@@ -11,7 +10,7 @@ class Sound():
         self.loop = False
         self.sound_file = sound_file
         self.volume = 50
-        self.sound = pygame.mixer.Sound(sound_file)
+        self.sound = self.load(sound_file)
         self.set_volume(self.volume)
 
         # To reduce audio delay
@@ -29,7 +28,7 @@ class Sound():
             value = 0
 
         self.volume = value
-        self.sound.set_volume(float(value)/100)
+        self.sound.set_volume(value/100)
 
     def increase_volume(self, value):
         self.set_volume(self.volume + value)
@@ -62,6 +61,6 @@ class Sound():
         self.loop = repeat
 
     def fadeout(self, time_ms):
-       self.sound.fadeout(time_ms)
+       self.sound.fadeout(time)
 
 

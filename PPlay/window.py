@@ -1,5 +1,3 @@
-# coding= utf-8
-
 # Pygame and system modules
 import sys
 import pygame
