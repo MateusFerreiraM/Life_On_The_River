@@ -1,4 +1,7 @@
-import random
+# game_object.py
+# Contém as classes para os objetos móveis do jogo.
+
+import pygame
 from PPlay.sprite import Sprite
 
 class MovingObject(Sprite):
@@ -7,6 +10,15 @@ class MovingObject(Sprite):
         super().__init__(image_path)
         self.type = object_type
         self.is_active = False
+        self.speed = 0
+
+    def get_hitbox(self):
+        """Retorna um retângulo de colisão mais justo para o objeto."""
+        hitbox_width = self.width * 0.85
+        hitbox_height = self.height * 0.85
+        hitbox_x = self.x + (self.width - hitbox_width) / 2
+        hitbox_y = self.y + (self.height - hitbox_height) / 2
+        return pygame.Rect(hitbox_x, hitbox_y, hitbox_width, hitbox_height)
 
     def spawn(self, window, speed, y_pos):
         self.is_active = True
@@ -14,8 +26,10 @@ class MovingObject(Sprite):
         self.x = window.width
         self.y = y_pos - self.height
 
-    def update(self, delta_time):
+    def update(self, game_speed, delta_time):
+        """Move o objeto para a esquerda com base na velocidade do jogo."""
         if self.is_active:
+            self.speed = game_speed
             self.x -= self.speed * delta_time
             if self.x < -self.width:
                 self.is_active = False
@@ -23,69 +37,3 @@ class MovingObject(Sprite):
     def draw(self):
         if self.is_active:
             super().draw()
-
-class Helicopter(Sprite):
-    """Classe especial para o helicóptero, com movimento e tiro próprios."""
-    def __init__(self, image_path, bullet_image_path):
-        super().__init__(image_path, 3)
-        self.set_total_duration(400)
-        self.type = "helicopter"
-        self.is_active = False
-
-        self.bullet = MovingObject(bullet_image_path, "obstacle")
-        self.bullet_speed_x = 200
-        self.bullet_speed_y = 150
-
-        self.direction = -1
-        self.speed = 100
-
-        self.active_duration = 5.0
-        self.active_timer = 0.0
-
-    def spawn(self, window, speed, y_pos):
-        self.is_active = True
-        self.active_timer = 0.0
-        self.x = window.width - 200
-        self.y = y_pos
-        self.min_x = window.width - 300
-        self.max_x = window.width
-
-    def update(self, delta_time, game_speed):
-        if not self.is_active:
-            return
-
-        self.active_timer += delta_time
-        if self.active_timer >= self.active_duration:
-            self.reset()
-            return
-
-        self.x += self.speed * self.direction * delta_time
-        if self.x <= self.min_x:
-            self.direction = 1
-        elif self.x >= self.max_x - self.width:
-            self.direction = -1
-        
-        if not self.bullet.is_active:
-            if random.random() < 0.015:
-                self.bullet.is_active = True
-                self.bullet.x = self.x + self.width / 2
-                self.bullet.y = self.y + self.height * 0.6
-                self.bullet.speed = game_speed + self.bullet_speed_x
-
-        if self.bullet.is_active:
-            self.bullet.x -= self.bullet.speed * delta_time
-            self.bullet.y += self.bullet_speed_y * delta_time
-            if self.bullet.x < -self.bullet.width or self.bullet.y > 800:
-                self.bullet.is_active = False
-
-        super().update()
-
-    def draw(self):
-        if self.is_active:
-            super().draw()
-            self.bullet.draw()
-
-    def reset(self):
-        self.is_active = False
-        self.bullet.is_active = False
-        self.active_timer = 0.0
