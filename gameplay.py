@@ -6,7 +6,6 @@ from entities import Spawner
 import constants as C
 
 # --- Componentes Internos da Cena de Gameplay ---
-
 class Scenery:
     """Gere o fundo de ecrã contínuo com efeito de parallax."""
     def __init__(self, window):
@@ -171,21 +170,23 @@ class PauseMenu:
         self._draw()
 
 # --- Classe Principal da Cena de Gameplay ---
-
 class Gameplay:
     """
     Classe principal que orquestra todos os elementos da partida.
     """
-    def __init__(self, window, game, asset_manager):
+    def __init__(self, window, game, asset_manager, achievement_manager):
         self.window = window
         self.game = game
-        self.asset_manager = asset_manager # NOVO: guardar referência ao asset_manager
+        self.asset_manager = asset_manager
+        self.achievement_manager = achievement_manager
         self.keyboard = self.window.get_keyboard()
 
         self.scenery = Scenery(self.window)
         self.player = Player(self.window)
         self.spawner = Spawner(self.window)
         self.pause_menu = PauseMenu(self.window, self, asset_manager)
+        
+        # REMOVIDO: self.notifications = []
         
         self.is_paused = False
         self.esc_was_pressed = False
@@ -194,13 +195,7 @@ class Gameplay:
         self.color_text = C.COLOR_WHITE
         self.color_outline = C.COLOR_BLACK
 
-        self.game_speed = 0
-        self.score = 0
-        self.time_survived = 0
-        
-        # NOVO: Temporizador para o tiro
-        self.gunshot_timer = 0.0
-        
+        self.session_stats = {}
         self.reset()
 
     def unpause(self): self.is_paused = False
@@ -213,8 +208,12 @@ class Gameplay:
         self.game_speed = C.INITIAL_GAME_SPEED
         self.player.reset()
         self.spawner.reset()
-        # NOVO: Reinicia o timer para que o tiro toque logo no início
         self.gunshot_timer = C.GUNSHOT_INTERVAL
+        # Reinicia as estatísticas da sessão
+        self.session_stats = {
+            "score": 0, "time": 0, "money_bags": 0,
+            "cars_dodged": 0, "bullets_dodged": 0
+        }
 
     def _render_text_with_outline(self, font, text, color, outline_color, outline_width=2):
         text_surface = font.render(text, True, color)
@@ -235,10 +234,33 @@ class Gameplay:
                 if player_hitbox.colliderect(obj_hitbox):
                     if obj.type == "score_boost":
                         self.player.activate_score_boost()
+                        self.session_stats["money_bags"] += 1
                         obj.is_active = False
                     elif obj.type == "obstacle":
-                        self.game.change_state("GAME_OVER", score=int(self.score), time=self.time_survived)
+                        # --- Apenas atualiza as estatísticas e muda o estado ---
+                        self.session_stats["score"] = int(self.score)
+                        self.session_stats["time"] = self.time_survived
+                        
+                        # Passa o dicionário completo para a classe Game
+                        self.game.change_state("GAME_OVER", session_stats=self.session_stats)
                         return
+                    
+    def _update_dodges(self):
+        """Verifica objetos que saíram da tela e conta como desvio."""
+        all_objects = []
+        for pool in self.spawner.object_pool.values(): all_objects.extend(pool)
+        
+        for obj in all_objects:
+            # O método update agora retorna True se o objeto saiu da tela
+            if obj.update(self.game_speed, self.window.delta_time()):
+                if obj.type == "obstacle":
+                    if "viatura" in obj.image_path:
+                        self.session_stats["cars_dodged"] += 1
+                    elif "bala" in obj.image_path:
+                        self.session_stats["bullets_dodged"] += 1
+                    elif "helicoptero" in obj.image_path:
+                        # Pode adicionar uma estatística para helicópteros se quiser
+                        pass
 
     def _handle_timed_sfx(self, delta_time):
         self.gunshot_timer += delta_time
@@ -262,11 +284,12 @@ class Gameplay:
             self.scenery.update(scenery_move_delta)
             self.player.update(self.keyboard, delta_time)
             self.spawner.update(self.game_speed, self.score, delta_time)
+            self._update_dodges()
             self._handle_timed_sfx(delta_time) # Chama o gestor do tiro
             
             # Colisões e Pontuação
             self._check_collisions()
-            score_multiplier = 2 if self.player.is_score_boosted else 1
+            score_multiplier = 3 if self.player.is_score_boosted else 1
             self.score += (1 * score_multiplier) * delta_time * 20
         
         # Desenhos

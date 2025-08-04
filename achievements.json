@@ -1,0 +1,17 @@
+{
+    "stats": {
+        "total_score": 0,
+        "total_time_survived": 0,
+        "total_money_bags": 0,
+        "total_cars_dodged": 0,
+        "total_bullets_dodged": 0,
+        "highest_score": 0
+    },
+    "achievements_unlocked": {
+        "survive_60s": false,
+        "score_3k": false,
+        "collect_100_bags": false,
+        "dodge_500_cars": false,
+        "dodge_500_bullets": false
+    }
+}

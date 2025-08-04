@@ -9,6 +9,7 @@ class MovingObject(Sprite):
     """
     def __init__(self, image_path, object_type, num_frames=1):
         super().__init__(image_path, num_frames)
+        self.image_path = image_path # <-- ADICIONE ESTA LINHA        
         self.type = object_type
         self.is_active = False
         self.speed = 0
@@ -29,12 +30,17 @@ class MovingObject(Sprite):
         self.y = y_pos - self.height
 
     def update(self, game_speed, delta_time):
-        """Move o objeto para a esquerda com base na velocidade atual do jogo."""
+        """
+        Move o objeto para a esquerda.
+        Retorna True se o objeto saiu da tela (foi desviado).
+        """
         if self.is_active:
             self.speed = game_speed
             self.x -= self.speed * delta_time
             if self.x < -self.width:
                 self.is_active = False
+                return True # Objeto saiu da tela
+        return False    
     
     def draw(self):
         if self.is_active:
@@ -92,9 +98,10 @@ class Spawner:
         self.object_pool = {}
         self._load_objects()
 
+        # No __init__ da classe Spawner
         self.phase1_pool = ["police_car", "police_car", "police_car", "money_bag"]
         self.phase2_pool = self.phase1_pool + ["bullet", "bullet", "bullet"]
-        self.phase3_pool = self.phase2_pool + ["helicopter"]
+        self.phase3_pool = self.phase2_pool + ["helicopter", "helicopter"]
 
         self.spawn_timer = 0.0
         self.min_spawn_cooldown = C.MIN_SPAWN_COOLDOWN
@@ -105,7 +112,7 @@ class Spawner:
         """Cria as instâncias dos objetos que podem ser gerados."""
         self.object_pool["police_car"] = [MovingObject(C.IMG_POLICE_CAR, "obstacle") for _ in range(3)]
         self.object_pool["bullet"] = [MovingObject(C.IMG_BULLET, "obstacle") for _ in range(3)]
-        self.object_pool["money_bag"] = [MovingObject(C.IMG_MONEY_BAG, "score_boost") for _ in range(2)]
+        self.object_pool["money_bag"] = [MovingObject(C.IMG_MONEY_BAG, "score_boost") for _ in range(1)]
         self.object_pool["helicopter"] = [Helicopter(C.IMG_HELICOPTER, "obstacle")]
 
     def update(self, game_speed, score, delta_time):
@@ -120,9 +127,9 @@ class Spawner:
             self.spawn_timer = 0
             self.time_to_next_spawn = random.uniform(current_min_cooldown, current_max_cooldown)
             
-            if score < 5:
+            if score < 500:
                 current_pool = self.phase1_pool
-            elif score < 10:
+            elif score < 1000:
                 current_pool = self.phase2_pool
             else:
                 current_pool = self.phase3_pool

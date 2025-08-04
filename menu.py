@@ -21,7 +21,7 @@ class Menu:
         self.color_hover = C.COLOR_GOLD
         self.color_outline = C.COLOR_BLACK
 
-        self.opcoes_menu = ["Jogar", "Ranking", "Sair"]
+        self.opcoes_menu = ["Jogar", "Ranking", "Conquistas", "Como Jogar", "Sair"]
         self.buttons = {}
         self._create_buttons()
         
@@ -40,7 +40,10 @@ class Menu:
 
     def _create_buttons(self):
         """Cria as áreas retangulares para os botões do menu."""
-        y_pos = self.window.height / 2
+        # --- LINHA ALTERADA ---
+        # Subimos a posição inicial do primeiro botão para que todos subam juntos.
+        y_pos = self.window.height / 2 - 70 
+        
         for texto in self.opcoes_menu:
             rect = pygame.Rect(0, 0, 300, 60)
             rect.center = (self.window.width / 2, y_pos)
@@ -51,8 +54,10 @@ class Menu:
         """Desenha todos os elementos visuais do menu."""
         self.background.draw()
 
+        # --- LINHA ALTERADA ---
+        # Subimos o título do jogo.
         title_surf = self._render_text_with_outline(self.font_gametitle, "Life On The River", self.color_title, self.color_outline, 3)
-        title_rect = title_surf.get_rect(center=(self.window.width / 2, 130))
+        title_rect = title_surf.get_rect(center=(self.window.width / 2, 100))
         self.window.screen.blit(title_surf, title_rect)
 
         mouse_pos = self.mouse.get_position()
@@ -74,6 +79,10 @@ class Menu:
                 self.game.change_state("PLAYING")
             elif self.buttons["Ranking"].collidepoint(mouse_pos):
                 self.game.change_state("RANKING")
+            elif self.buttons["Conquistas"].collidepoint(mouse_pos):
+                self.game.change_state("ACHIEVEMENTS")
+            elif self.buttons["Como Jogar"].collidepoint(mouse_pos):
+                self.game.change_state("INSTRUCTIONS")
             elif self.buttons["Sair"].collidepoint(mouse_pos):
                 self.game.change_state("EXIT")
 
