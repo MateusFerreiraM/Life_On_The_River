@@ -2,7 +2,7 @@
 
 | Menu | Gameplay | Conquistas |
 |:---:|:---:|:---:|
-| ![Tela de Menu](Assets/Images/Jogo/menu.png) | ![Gameplay](Assets/Images/Jogo/gameplay.png) | ![Tela de Conquistas](Assets/Images/Jogo/conquistas.png) |
+| ![Tela de Menu](Assets/Jogo/menu.png) | ![Gameplay](Assets/Jogo/gameplay.png) | ![Tela de Conquistas](Assets/Jogo/conquistas.png) |
 
 Um jogo de corrida infinita em 2D desenvolvido em Python. Assuma o controle de um fugitivo que deve fugir da polícia desviando de obstáculos e coletar sacos de dinheiro para sobreviver o máximo de tempo possível e alcançar a maior pontuação.
 
@@ -41,28 +41,30 @@ Siga os passos abaixo para rodar o jogo "Fuga no Rio" na sua máquina local.
 ### Instalação
 
 1.  **Clone o repositório:**
-    ```sh
-    git clone https://github.com/MateusFerreiraM/Life_On_The_River.git
-    cd Life_On_The_River
-    ```
+    ```sh
+    git clone [https://github.com/MateusFerreiraM/Life_On_The_River.git](https://github.com/MateusFerreiraM/Life_On_The_River.git)
+    cd Life_On_The_River
+    ```
 
-2.  **Crie um Ambiente Virtual (Recomendado):**
-    ```sh
-    python -m venv venv
-    ```
-    Ative o ambiente:
-    * No Windows: `.\venv\Scripts\activate`
-    * No macOS/Linux: `source venv/bin/activate`
+2.  **Crie um Ambiente Virtual (Recomendado):**
+    ```sh
+    python -m venv venv
+    ```
+    Ative o ambiente:
+    * No Windows: `.\venv\Scripts\activate`
+    * No macOS/Linux: `source venv/bin/activate`
 
-3.  **Instale as dependências:**
-    ```sh
-    pip install -r requirements.txt
-    ```
+3.  **Instale as dependências:**
+    As bibliotecas necessárias estão listadas no arquivo `requirements.txt`. Para instalá-las, rode:
+    ```sh
+    pip install -r requirements.txt
+    ```
 
-4.  **Execute o Jogo:**
-    ```sh
-    python main.py
-    ```
+4.  **Execute o Jogo:**
+    Com as dependências instaladas, basta executar o arquivo principal.
+    ```sh
+    python main.py
+    ```
 
 ---
 
@@ -70,9 +72,9 @@ Siga os passos abaixo para rodar o jogo "Fuga no Rio" na sua máquina local.
 
 * **Objetivo:** Sobreviver o máximo de tempo possível, desviando dos obstáculos e coletando sacos de dinheiro para conseguir a maior pontuação.
 * **Controles:**
-    * **Pular:** `Seta para Cima` ou `UP`.
-    * **Agachar:** `Seta para Baixo` ou `DOWN`.
-    * **Pausar/Voltar ao Menu:** `ESC` durante a partida para abrir o menu de pause.
+    * **Pular:** `Seta para Cima` ou `UP`.
+    * **Agachar:** `Seta para Baixo` ou `DOWN`.
+    * **Pausar/Voltar ao Menu:** `ESC` durante a partida para abrir o menu de pause.
 
 ---
 
