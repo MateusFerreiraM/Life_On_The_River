@@ -1,47 +1,42 @@
 import pygame
 from PPlay.gameimage import GameImage
 from PPlay.mouse import Mouse
+import constants as C
 
 class Ranking:
     """
     Exibe a tela de ranking, lendo e formatando as pontuações salvas.
     """
-    def __init__(self, window, game):
+    def __init__(self, window, game, asset_manager):
         self.window = window
         self.game = game
         self.mouse = Mouse()
         self.keyboard = self.window.get_keyboard()
 
-        self.background = GameImage("Assets/Images/menu_background.png")
+        self.background = GameImage(C.IMG_MENU_BACKGROUND)
         
-        try:
-            self.font_title = pygame.font.Font("Assets/Fonts/pricedown bl.ttf", 80)
-            self.font_header = pygame.font.Font("Assets/Fonts/pricedown bl.ttf", 30)
-            self.font_score = pygame.font.Font("Assets/Fonts/pricedown bl.ttf", 40)
-            self.font_button = pygame.font.Font("Assets/Fonts/pricedown bl.ttf", 40)
-        except FileNotFoundError:
-            self.font_title = pygame.font.Font(None, 90)
-            self.font_header = pygame.font.Font(None, 40)
-            self.font_score = pygame.font.Font(None, 50)
-            self.font_button = pygame.font.Font(None, 50)
+        self.font_title = asset_manager.get_font("pricedown_title")
+        self.font_header = asset_manager.get_font("pricedown_header")
+        self.font_score = asset_manager.get_font("pricedown_score")
+        self.font_button = asset_manager.get_font("pricedown_button")
         
-        self.color_title = (255, 215, 0)
-        self.color_text = (255, 255, 255)
-        self.color_hover = (255, 215, 0)
-        self.color_outline = (0, 0, 0)
+        self.color_title = C.COLOR_GOLD
+        self.color_text = C.COLOR_WHITE
+        self.color_hover = C.COLOR_GOLD
+        self.color_outline = C.COLOR_BLACK
 
         self.back_button_rect = pygame.Rect(0, 0, 200, 50)
         self.back_button_rect.center = (self.window.width / 2, self.window.height - 70)
         
         try:
-            self.trophy_icon = pygame.image.load("Assets/Images/trophy.png")
+            self.trophy_icon = pygame.image.load(C.IMG_TROPHY)
             self.trophy_icon = pygame.transform.scale(self.trophy_icon, (40, 40))
         except FileNotFoundError:
             self.trophy_icon = None
 
         self.ranking_info = []
         
-        self.click_cooldown = 0.5
+        self.click_cooldown = C.CLICK_COOLDOWN
         self.last_click_time = 0
 
     def _render_text_with_outline(self, font, text, color, outline_color, outline_width=2):

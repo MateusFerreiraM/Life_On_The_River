@@ -1,34 +1,31 @@
 import pygame
 from PPlay.gameimage import GameImage
 from PPlay.mouse import Mouse
+import constants as C
 
 class Menu:
     """
     Gere a cena do menu principal, incluindo o título e os botões.
     """
-    def __init__(self, window, game):
+    def __init__(self, window, game, asset_manager):
         self.window = window
         self.game = game
         self.mouse = Mouse()
 
-        self.background = GameImage("Assets/Images/menu_background.png")
-        try:
-            self.font_gametitle = pygame.font.Font("Assets/Fonts/pricedown bl.ttf", 100)
-            self.font_button = pygame.font.Font("Assets/Fonts/pricedown bl.ttf", 50)
-        except FileNotFoundError:
-            self.font_gametitle = pygame.font.Font(None, 120)
-            self.font_button = pygame.font.Font(None, 60)
+        self.background = GameImage(C.IMG_MENU_BACKGROUND)
+        self.font_gametitle = asset_manager.get_font("pricedown_game_title")
+        self.font_button = asset_manager.get_font("pricedown_button")
         
-        self.color_title = (255, 215, 0)
-        self.color_text = (255, 255, 255)
-        self.color_hover = (255, 215, 0)
-        self.color_outline = (0, 0, 0)
+        self.color_title = C.COLOR_GOLD
+        self.color_text = C.COLOR_WHITE
+        self.color_hover = C.COLOR_GOLD
+        self.color_outline = C.COLOR_BLACK
 
         self.opcoes_menu = ["Jogar", "Ranking", "Sair"]
         self.buttons = {}
         self._create_buttons()
         
-        self.click_cooldown = 0.5
+        self.click_cooldown = C.CLICK_COOLDOWN
         self.last_click_time = 0
 
     def _render_text_with_outline(self, font, text, color, outline_color, outline_width=2):

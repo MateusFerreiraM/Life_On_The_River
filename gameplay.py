@@ -3,14 +3,15 @@ from PPlay.sprite import Sprite
 from PPlay.collision import Collision
 from PPlay.mouse import Mouse
 from entities import Spawner
+import constants as C
 
 # --- Componentes Internos da Cena de Gameplay ---
 
 class Scenery:
     """Gere o fundo de ecrã contínuo com efeito de parallax."""
-    def __init__(self, window, image_path1, image_path2):
-        self.bg1 = Sprite(image_path1)
-        self.bg2 = Sprite(image_path2)
+    def __init__(self, window):
+        self.bg1 = Sprite(C.IMG_GAME_BACKGROUND_1)
+        self.bg2 = Sprite(C.IMG_GAME_BACKGROUND_2)
         self.bg1.x = 0
         self.bg2.x = self.bg1.width
 
@@ -30,13 +31,13 @@ class Player:
     """Gere o estado, as ações (pulo, agachar) e a física do jogador."""
     def __init__(self, window):
         self.window = window
-        self.run_sprite = Sprite("Assets/Images/burglar.png", 9)
-        self.duck_sprite = Sprite("Assets/Images/burglar_state2.png")
+        self.run_sprite = Sprite(C.IMG_PLAYER_RUN, C.PLAYER_RUN_FRAMES)
+        self.duck_sprite = Sprite(C.IMG_PLAYER_DUCK)
         self.run_sprite.set_sequence(0, 4, True)
-        self.run_sprite.set_total_duration(800)
+        self.run_sprite.set_total_duration(C.PLAYER_RUN_DURATION)
         
-        self.gravity = 2400
-        self.jump_velocity = -1100
+        self.gravity = C.PLAYER_GRAVITY
+        self.jump_velocity = C.PLAYER_JUMP_VELOCITY
         self.velocity_y = 0
         
         self.ground_y = self.window.height - self.run_sprite.height
@@ -44,7 +45,7 @@ class Player:
 
         self.is_score_boosted = False
         self.score_boost_timer = 0
-        self.score_boost_duration = 10
+        self.score_boost_duration = C.SCORE_BOOST_DURATION
         
         self.up_key_was_pressed = False
         self.reset()
@@ -59,8 +60,8 @@ class Player:
         self.up_key_was_pressed = False
 
     def get_hitbox(self):
-        hitbox_width = self.sprite.width * 0.85
-        hitbox_height = self.sprite.height * 0.90
+        hitbox_width = self.sprite.width * C.PLAYER_HITBOX_SCALE[0]
+        hitbox_height = self.sprite.height * C.PLAYER_HITBOX_SCALE[1]
         hitbox_x = self.sprite.x + (self.sprite.width - hitbox_width) / 2
         hitbox_y = self.sprite.y + (self.sprite.height - hitbox_height) / 2
         return pygame.Rect(hitbox_x, hitbox_y, hitbox_width, hitbox_height)
@@ -109,29 +110,25 @@ class Player:
 
 class PauseMenu:
     """Gere a tela de pausa que aparece sobre a cena de gameplay."""
-    def __init__(self, window, gameplay_instance):
+    def __init__(self, window, gameplay_instance, asset_manager):
         self.window = window
         self.gameplay = gameplay_instance
         self.mouse = Mouse()
         
-        try:
-            self.font_title = pygame.font.Font("Assets/Fonts/pricedown bl.ttf", 80)
-            self.font_button = pygame.font.Font("Assets/Fonts/pricedown bl.ttf", 40)
-        except FileNotFoundError:
-            self.font_title = pygame.font.Font(None, 90)
-            self.font_button = pygame.font.Font(None, 50)
+        self.font_title = asset_manager.get_font("pricedown_title")
+        self.font_button = asset_manager.get_font("pricedown_pause_button")
         
-        self.color_title = (255, 215, 0)
-        self.color_text = (255, 255, 255)
-        self.color_hover = (255, 215, 0)
+        self.color_title = C.COLOR_GOLD
+        self.color_text = C.COLOR_WHITE
+        self.color_hover = C.COLOR_GOLD
 
         self.overlay = pygame.Surface((self.window.width, self.window.height), pygame.SRCALPHA)
-        self.overlay.fill((0, 0, 0, 150))
+        self.overlay.fill(C.OVERLAY_COLOR)
 
         self.buttons = {}
         self.button_surfaces = {}
         self._create_buttons()
-        self.click_cooldown = 0.5
+        self.click_cooldown = C.CLICK_COOLDOWN
         self.last_click_time = 0
 
     def _create_buttons(self):
@@ -179,29 +176,31 @@ class Gameplay:
     """
     Classe principal que orquestra todos os elementos da partida.
     """
-    def __init__(self, window, game):
+    def __init__(self, window, game, asset_manager):
         self.window = window
         self.game = game
+        self.asset_manager = asset_manager # NOVO: guardar referência ao asset_manager
         self.keyboard = self.window.get_keyboard()
 
-        self.scenery = Scenery(self.window, "Assets/Images/fundo_jogo.png", "Assets/Images/fundo_jogo1.png")
+        self.scenery = Scenery(self.window)
         self.player = Player(self.window)
         self.spawner = Spawner(self.window)
-        self.pause_menu = PauseMenu(self.window, self)
+        self.pause_menu = PauseMenu(self.window, self, asset_manager)
         
         self.is_paused = False
         self.esc_was_pressed = False
         
-        try:
-            self.hud_font = pygame.font.Font("Assets/Fonts/pricedown bl.ttf", 40)
-        except FileNotFoundError:
-            self.hud_font = pygame.font.Font(None, 50)
-        self.color_text = (255, 255, 255)
-        self.color_outline = (0, 0, 0)
+        self.hud_font = asset_manager.get_font("pricedown_hud")
+        self.color_text = C.COLOR_WHITE
+        self.color_outline = C.COLOR_BLACK
 
         self.game_speed = 0
         self.score = 0
         self.time_survived = 0
+        
+        # NOVO: Temporizador para o tiro
+        self.gunshot_timer = 0.0
+        
         self.reset()
 
     def unpause(self): self.is_paused = False
@@ -211,9 +210,11 @@ class Gameplay:
     def reset(self):
         self.score = 0
         self.time_survived = 0
-        self.game_speed = 300
+        self.game_speed = C.INITIAL_GAME_SPEED
         self.player.reset()
         self.spawner.reset()
+        # NOVO: Reinicia o timer para que o tiro toque logo no início
+        self.gunshot_timer = C.GUNSHOT_INTERVAL
 
     def _render_text_with_outline(self, font, text, color, outline_color, outline_width=2):
         text_surface = font.render(text, True, color)
@@ -239,6 +240,12 @@ class Gameplay:
                         self.game.change_state("GAME_OVER", score=int(self.score), time=self.time_survived)
                         return
 
+    def _handle_timed_sfx(self, delta_time):
+        self.gunshot_timer += delta_time
+        if self.gunshot_timer >= C.GUNSHOT_INTERVAL:
+            self.gunshot_timer = 0 # Reinicia o timer
+            self.asset_manager.play_sound("gunshot") # Toca o som
+
     def run(self):
         esc_is_pressed = self.keyboard.key_pressed("ESC")
         if esc_is_pressed and not self.esc_was_pressed:
@@ -247,16 +254,22 @@ class Gameplay:
 
         if not self.is_paused:
             delta_time = self.window.delta_time()
-            self.game_speed = 300 + (self.score // 30) * 20
+            self.game_speed = C.INITIAL_GAME_SPEED + (self.score // C.GAME_SPEED_SCORE_INTERVAL) * C.GAME_SPEED_INCREASE_FACTOR
             self.time_survived += delta_time
             scenery_move_delta = (self.game_speed * 0.5) * delta_time
+
+            # Atualizações
             self.scenery.update(scenery_move_delta)
             self.player.update(self.keyboard, delta_time)
             self.spawner.update(self.game_speed, self.score, delta_time)
+            self._handle_timed_sfx(delta_time) # Chama o gestor do tiro
+            
+            # Colisões e Pontuação
             self._check_collisions()
             score_multiplier = 2 if self.player.is_score_boosted else 1
             self.score += (1 * score_multiplier) * delta_time * 20
         
+        # Desenhos
         self.scenery.draw()
         self.player.draw()
         self.spawner.draw()

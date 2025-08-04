@@ -1,21 +1,22 @@
 import random
 import pygame
 from PPlay.sprite import Sprite
+import constants as C
 
 class MovingObject(Sprite):
     """
     Classe base para objetos que se movem da direita para a esquerda.
     """
-    def __init__(self, image_path, object_type):
-        super().__init__(image_path)
+    def __init__(self, image_path, object_type, num_frames=1):
+        super().__init__(image_path, num_frames)
         self.type = object_type
         self.is_active = False
         self.speed = 0
 
     def get_hitbox(self):
         """Retorna um retângulo de colisão mais justo para o objeto."""
-        hitbox_width = self.width * 0.85
-        hitbox_height = self.height * 0.85
+        hitbox_width = self.width * C.OBJECT_HITBOX_SCALE[0]
+        hitbox_height = self.height * C.OBJECT_HITBOX_SCALE[1]
         hitbox_x = self.x + (self.width - hitbox_width) / 2
         hitbox_y = self.y + (self.height - hitbox_height) / 2
         return pygame.Rect(hitbox_x, hitbox_y, hitbox_width, hitbox_height)
@@ -39,56 +40,41 @@ class MovingObject(Sprite):
         if self.is_active:
             super().draw()
 
-# --- NOVA CLASSE APENAS PARA O HELICÓPTERO ---
-class Helicopter(Sprite):
+class Helicopter(MovingObject):
     """
-    Classe específica para o helicóptero, para gerir a sua animação.
+    Classe específica para o helicóptero, que herda de MovingObject
+    e adiciona a sua própria lógica de animação.
     """
     def __init__(self, image_path, object_type):
-        # Inicializa o Sprite com 3 frames de animação
-        super().__init__(image_path, 3)
-        self.type = object_type
-        self.is_active = False
-        self.speed = 0
+        # Inicializa o MovingObject com o número correto de frames
+        super().__init__(image_path, object_type, C.HELICOPTER_FRAMES)
         
         # Configura a animação das hélices
-        self.set_sequence(0, 2, True) # Loop contínuo dos frames 0, 1 e 2
-        self.set_total_duration(300)  # Velocidade da animação em milissegundos
+        self.set_sequence(0, 2, True)
+        self.set_total_duration(C.HELICOPTER_ANIM_DURATION)
 
     def get_hitbox(self):
-        """Retorna um retângulo de colisão mais justo para o objeto."""
-        # A hitbox aqui é um pouco diferente porque o sprite animado tem uma largura total
-        # diferente de um frame individual.
-        frame_width = self.width / 3 # Largura de um único frame
-        hitbox_width = frame_width * 0.85
-        hitbox_height = self.height * 0.85
+        """Retorna um retângulo de colisão mais justo para o objeto animado."""
+        frame_width = self.width / C.HELICOPTER_FRAMES
+        hitbox_width = frame_width * C.OBJECT_HITBOX_SCALE[0]
+        hitbox_height = self.height * C.OBJECT_HITBOX_SCALE[1]
         hitbox_x = self.x + (frame_width - hitbox_width) / 2
         hitbox_y = self.y + (self.height - hitbox_height) / 2
         return pygame.Rect(hitbox_x, hitbox_y, hitbox_width, hitbox_height)
 
-    def spawn(self, window, speed, y_pos):
-        """Ativa o objeto, colocando-o no início da tela."""
-        self.is_active = True
-        self.speed = speed
-        self.x = window.width
-        self.y = y_pos - self.height
-
     def update(self, game_speed, delta_time):
-        """Move o objeto e atualiza a sua animação."""
+        """Move o objeto, atualiza a sua animação e verifica a desativação."""
         if self.is_active:
             self.speed = game_speed
             self.x -= self.speed * delta_time
             
-            # Atualiza o frame da animação
-            super().update()
+            # Atualiza o frame da animação (método da classe PPlay.Sprite)
+            super(MovingObject, self).update()
             
-            if self.x < - (self.width / 3):
+            # Condição de desativação específica para o sprite animado
+            frame_width = self.width / C.HELICOPTER_FRAMES
+            if self.x < -frame_width:
                 self.is_active = False
-    
-    def draw(self):
-        if self.is_active:
-            super().draw()
-
 
 class Spawner:
     """
@@ -98,9 +84,9 @@ class Spawner:
         self.window = window
         
         self.layers = {
-            "ground": self.window.height,
-            "head": self.window.height - 100,
-            "sky": self.window.height / 2 + 40
+            "ground": C.LAYER_Y_GROUND,
+            "head": C.LAYER_Y_HEAD,
+            "sky": C.LAYER_Y_SKY
         }
         
         self.object_pool = {}
@@ -111,24 +97,24 @@ class Spawner:
         self.phase3_pool = self.phase2_pool + ["helicopter"]
 
         self.spawn_timer = 0.0
-        self.min_spawn_cooldown = 2.0
-        self.max_spawn_cooldown = 3.5
+        self.min_spawn_cooldown = C.MIN_SPAWN_COOLDOWN
+        self.max_spawn_cooldown = C.MAX_SPAWN_COOLDOWN
         self.time_to_next_spawn = random.uniform(self.min_spawn_cooldown, self.max_spawn_cooldown)
 
     def _load_objects(self):
         """Cria as instâncias dos objetos que podem ser gerados."""
-        self.object_pool["police_car"] = [MovingObject("Assets/Images/viatura.png", "obstacle") for _ in range(3)]
-        self.object_pool["bullet"] = [MovingObject("Assets/Images/bala_projetofinal.png", "obstacle") for _ in range(3)]
-        self.object_pool["money_bag"] = [MovingObject("Assets/Images/saco_de_dinheiro.png", "score_boost") for _ in range(2)]
-        self.object_pool["helicopter"] = [Helicopter("Assets/Images/helicoptero.png", "obstacle")]
+        self.object_pool["police_car"] = [MovingObject(C.IMG_POLICE_CAR, "obstacle") for _ in range(3)]
+        self.object_pool["bullet"] = [MovingObject(C.IMG_BULLET, "obstacle") for _ in range(3)]
+        self.object_pool["money_bag"] = [MovingObject(C.IMG_MONEY_BAG, "score_boost") for _ in range(2)]
+        self.object_pool["helicopter"] = [Helicopter(C.IMG_HELICOPTER, "obstacle")]
 
     def update(self, game_speed, score, delta_time):
         """Verifica se é hora de gerar um novo objeto e atualiza os ativos."""
         self.spawn_timer += delta_time
         
         difficulty_factor = score // 100
-        current_min_cooldown = max(0.7, self.min_spawn_cooldown - difficulty_factor * 0.15)
-        current_max_cooldown = max(1.4, self.max_spawn_cooldown - difficulty_factor * 0.15)
+        current_min_cooldown = max(C.MIN_COOLDOWN_CAP, self.min_spawn_cooldown - difficulty_factor * C.DIFFICULTY_COOLDOWN_FACTOR)
+        current_max_cooldown = max(C.MAX_COOLDOWN_CAP, self.max_spawn_cooldown - difficulty_factor * C.DIFFICULTY_COOLDOWN_FACTOR)
 
         if self.spawn_timer >= self.time_to_next_spawn:
             self.spawn_timer = 0

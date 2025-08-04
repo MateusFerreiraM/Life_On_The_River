@@ -1,29 +1,26 @@
 import pygame
 import string
 from PPlay.mouse import Mouse
+import constants as C
 
 class GameOver:
     """
     Gere a cena de Game Over, mostrando estatísticas e capturando
     o nome do jogador para o ranking.
     """
-    def __init__(self, window, game):
+    def __init__(self, window, game, asset_manager):
         self.window = window
         self.game = game
         self.keyboard = self.window.get_keyboard()
         
-        try:
-            self.font_title = pygame.font.Font("Assets/Fonts/pricedown bl.ttf", 80)
-            self.font_info = pygame.font.Font("Assets/Fonts/pricedown bl.ttf", 40)
-            self.font_input = pygame.font.Font("Assets/Fonts/pricedown bl.ttf", 35)
-        except FileNotFoundError:
-            self.font_title = pygame.font.Font(None, 90)
-            self.font_info = pygame.font.Font(None, 50)
-            self.font_input = pygame.font.Font(None, 45)
+        self.font_title = asset_manager.get_font("pricedown_title")
+        self.font_info = asset_manager.get_font("pricedown_info")
+        self.font_input = asset_manager.get_font("pricedown_input")
         
-        self.color_title = (255, 0, 0)
-        self.color_text = (255, 255, 255)
-        self.color_box = (150, 150, 150)
+        self.color_title = C.COLOR_RED
+        self.color_text = C.COLOR_WHITE
+        self.color_box = C.COLOR_GRAY_LIGHT
+        self.color_saved = C.COLOR_GRAY_DARK
 
         self.player_name = ""
         self.input_box_rect = pygame.Rect(0, 0, 300, 50)
@@ -77,7 +74,7 @@ class GameOver:
 
     def _draw(self):
         """Desenha todos os elementos da tela."""
-        self.window.set_background_color([20, 20, 20])
+        self.window.set_background_color(C.COLOR_BACKGROUND)
 
         title_surf = self.font_title.render("Se Ferrou!!!", True, self.color_title)
         title_rect = title_surf.get_rect(center=(self.window.width / 2, 80))
@@ -98,7 +95,7 @@ class GameOver:
         self.window.screen.blit(input_surf, input_rect)
 
         save_text = "Pressione ENTER para Salvar e ver o Ranking" if not self.score_saved else "PONTUAÇÃO SALVA!"
-        save_color = self.color_text if not self.score_saved else (100, 100, 100)
+        save_color = self.color_text if not self.score_saved else self.color_saved
         save_surf = self.font_input.render(save_text, True, save_color)
         save_rect = save_surf.get_rect(center=(self.window.width / 2, 450))
         self.window.screen.blit(save_surf, save_rect)
