@@ -131,8 +131,6 @@ class PauseMenu:
         self.buttons = {}
         self.button_surfaces = {}
         self._create_buttons()
-        
-        # Cooldown para o clique do rato para evitar cliques múltiplos
         self.click_cooldown = 0.5
         self.last_click_time = 0
 
@@ -149,13 +147,10 @@ class PauseMenu:
             y_pos += 80
 
     def _check_clicks(self):
-        # Atualiza o temporizador do cooldown
         self.last_click_time += self.window.delta_time()
-
         if self.mouse.is_button_pressed(1) and self.last_click_time > self.click_cooldown:
-            self.last_click_time = 0 # Reseta o temporizador após um clique válido
+            self.last_click_time = 0
             mouse_pos = self.mouse.get_position()
-            
             if self.buttons["continue"].collidepoint(mouse_pos):
                 self.gameplay.unpause()
             elif self.buttons["restart"].collidepoint(mouse_pos):
@@ -201,7 +196,6 @@ class Gameplay:
             self.hud_font = pygame.font.Font("Assets/Fonts/pricedown bl.ttf", 40)
         except FileNotFoundError:
             self.hud_font = pygame.font.Font(None, 50)
-            
         self.color_text = (255, 255, 255)
         self.color_outline = (0, 0, 0)
 
@@ -210,13 +204,11 @@ class Gameplay:
         self.time_survived = 0
         self.reset()
 
-    # --- Métodos de Controlo de Estado (chamados pelo menu de pausa) ---
     def unpause(self): self.is_paused = False
     def restart(self): self.unpause(); self.reset()
     def go_to_main_menu(self): self.unpause(); self.game.change_state("MENU")
     
     def reset(self):
-        """Reseta o estado da partida para um novo jogo."""
         self.score = 0
         self.time_survived = 0
         self.game_speed = 300
@@ -224,7 +216,6 @@ class Gameplay:
         self.spawner.reset()
 
     def _render_text_with_outline(self, font, text, color, outline_color, outline_width=2):
-        """Função auxiliar para renderizar texto com contorno."""
         text_surface = font.render(text, True, color)
         outline_surface = font.render(text, True, outline_color)
         final_surface = pygame.Surface((text_surface.get_width() + outline_width * 2, text_surface.get_height() + outline_width * 2), pygame.SRCALPHA)
@@ -234,7 +225,6 @@ class Gameplay:
         return final_surface
 
     def _check_collisions(self):
-        """Verifica e trata as colisões entre o jogador e os obstáculos."""
         player_hitbox = self.player.get_hitbox()
         all_objects = []
         for pool in self.spawner.object_pool.values(): all_objects.extend(pool)
@@ -250,33 +240,23 @@ class Gameplay:
                         return
 
     def run(self):
-        """Loop principal da cena de gameplay."""
-        # --- Lógica de Pausa ---
         esc_is_pressed = self.keyboard.key_pressed("ESC")
         if esc_is_pressed and not self.esc_was_pressed:
             self.is_paused = not self.is_paused
         self.esc_was_pressed = esc_is_pressed
 
-        # --- Lógica Principal do Jogo (só executa se não estiver pausado) ---
         if not self.is_paused:
             delta_time = self.window.delta_time()
-            
-            # Atualiza a dificuldade e o estado do jogo
             self.game_speed = 300 + (self.score // 30) * 20
             self.time_survived += delta_time
-            
-            # Atualiza todos os componentes
             scenery_move_delta = (self.game_speed * 0.5) * delta_time
             self.scenery.update(scenery_move_delta)
             self.player.update(self.keyboard, delta_time)
             self.spawner.update(self.game_speed, self.score, delta_time)
             self._check_collisions()
-
-            # Atualiza a pontuação
             score_multiplier = 2 if self.player.is_score_boosted else 1
             self.score += (1 * score_multiplier) * delta_time * 20
         
-        # --- Desenho (ocorre sempre, mesmo em pausa) ---
         self.scenery.draw()
         self.player.draw()
         self.spawner.draw()
@@ -285,6 +265,5 @@ class Gameplay:
         score_surf = self._render_text_with_outline(self.hud_font, score_text, self.color_text, self.color_outline)
         self.window.screen.blit(score_surf, (10, 10))
 
-        # Se o jogo estiver pausado, desenha o menu de pausa por cima de tudo
         if self.is_paused:
             self.pause_menu.run()

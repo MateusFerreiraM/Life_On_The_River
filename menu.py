@@ -28,7 +28,6 @@ class Menu:
         self.buttons = {}
         self._create_buttons()
         
-        # Cooldown para o clique do rato
         self.click_cooldown = 0.5
         self.last_click_time = 0
 

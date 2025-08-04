@@ -41,7 +41,6 @@ class Ranking:
 
         self.ranking_info = []
         
-        # Cooldown para o clique do rato
         self.click_cooldown = 0.5
         self.last_click_time = 0
 
