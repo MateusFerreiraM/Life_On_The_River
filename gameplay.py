@@ -185,9 +185,7 @@ class Gameplay:
         self.player = Player(self.window)
         self.spawner = Spawner(self.window)
         self.pause_menu = PauseMenu(self.window, self, asset_manager)
-        
-        # REMOVIDO: self.notifications = []
-        
+                
         self.is_paused = False
         self.esc_was_pressed = False
         
@@ -259,7 +257,6 @@ class Gameplay:
                     elif "bala" in obj.image_path:
                         self.session_stats["bullets_dodged"] += 1
                     elif "helicoptero" in obj.image_path:
-                        # Pode adicionar uma estatística para helicópteros se quiser
                         pass
 
     def _handle_timed_sfx(self, delta_time):

@@ -1,5 +1,3 @@
-# Ficheiro: instructions_scene.py (COMPLETO E ATUALIZADO)
-
 import pygame
 from PPlay.gameimage import GameImage
 from PPlay.mouse import Mouse
@@ -42,14 +40,13 @@ class InstructionsScene:
         final_surface.blit(text_surface, (outline_width, outline_width))
         return final_surface
 
-    # --- 1. NOVA FUNÇÃO PARA QUEBRAR O TEXTO ---
+    # --- NOVA FUNÇÃO PARA QUEBRAR O TEXTO ---
     def _wrap_text(self, text, font, max_width):
         """Quebra o texto em múltiplas linhas se ele for maior que a largura máxima."""
         words = text.split(' ')
         lines = []
         current_line = ""
         for word in words:
-            # Verifica a largura da linha atual + a próxima palavra
             test_line = current_line + word + " "
             if font.size(test_line)[0] < max_width:
                 current_line = test_line
@@ -64,7 +61,7 @@ class InstructionsScene:
 
         # Painel de Fundo
         largura_painel = self.window.width * 0.8
-        altura_painel = self.window.height * 0.6 # Aumentado um pouco a altura
+        altura_painel = self.window.height * 0.6
         pos_x_painel = (self.window.width - largura_painel) / 2
         pos_y_painel = 120
         painel_rect = pygame.Rect(pos_x_painel, pos_y_painel, largura_painel, altura_painel)
@@ -81,9 +78,9 @@ class InstructionsScene:
         # Textos de Instrução
         y_pos = painel_rect.y + 40
         x_pos_texto = painel_rect.x + 40
-        largura_max_texto = largura_painel - 80 # Largura máxima para o texto com margens
+        largura_max_texto = largura_painel - 80
         
-        # --- 2. SUBTÍTULOS EM AMARELO E TEXTO COM QUEBRA DE LINHA ---
+        # --- SUBTÍTULOS EM AMARELO E TEXTO COM QUEBRA DE LINHA ---
         
         # Objetivo
         header1_surf = self._render_text_with_outline(self.font_header, "OBJETIVO", self.color_title, self.color_outline)
@@ -96,8 +93,8 @@ class InstructionsScene:
         for line in linhas_objetivo:
             text1_surf = self.font_text.render(line, True, self.color_text)
             self.window.screen.blit(text1_surf, (x_pos_texto, y_pos))
-            y_pos += 25 # Espaçamento entre as linhas quebradas
-        y_pos += 40 # Espaço após o parágrafo
+            y_pos += 25
+        y_pos += 40
 
         # Controles
         header2_surf = self._render_text_with_outline(self.font_header, "CONTROLES", self.color_title, self.color_outline)

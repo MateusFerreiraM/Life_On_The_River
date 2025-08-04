@@ -3,7 +3,7 @@ import pygame
 # --- CONFIGURAÇÕES DA JANELA ---
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
-WINDOW_TITLE = "Fuga no Rio"
+WINDOW_TITLE = "Life On The River"
 
 # --- CORES ---
 COLOR_WHITE = (255, 255, 255)
@@ -14,36 +14,35 @@ COLOR_GRAY_LIGHT = (150, 150, 150)
 COLOR_GRAY_DARK = (100, 100, 100)
 COLOR_BACKGROUND = [20, 20, 20]
 OVERLAY_COLOR = (0, 0, 0, 150)
-COLOR_ACH_UNLOCKED = (118, 255, 122) # Verde para conquistas
-COLOR_ACH_LOCKED = (150, 150, 150)   # Cinza para conquistas
+COLOR_ACH_UNLOCKED = (118, 255, 122)
+COLOR_ACH_LOCKED = (150, 150, 150)
 
 # --- CAMINHOS DOS ASSETS ---
 # Fontes
 FONT_PRICEDOWN = "Assets/Fonts/pricedown bl.ttf"
 
 # Imagens
-IMG_MENU_BACKGROUND = "Assets/Images/menu_background.png"
+IMG_MENU_BACKGROUND = "Assets/Images/fundo_menu.png"
 IMG_GAME_BACKGROUND_1 = "Assets/Images/fundo_jogo.png"
 IMG_GAME_BACKGROUND_2 = "Assets/Images/fundo_jogo1.png"
-IMG_PLAYER_RUN = "Assets/Images/burglar.png"
-IMG_PLAYER_DUCK = "Assets/Images/burglar_state2.png"
+IMG_PLAYER_RUN = "Assets/Images/correndo.png"
+IMG_PLAYER_DUCK = "Assets/Images/deslizando.png"
 IMG_POLICE_CAR = "Assets/Images/viatura.png"
-IMG_BULLET = "Assets/Images/bala_projetofinal.png"
-IMG_MONEY_BAG = "Assets/Images/saco_de_dinheiro.png"
+IMG_BULLET = "Assets/Images/tiro.png"
+IMG_MONEY_BAG = "Assets/Images/dinheiro.png"
 IMG_HELICOPTER = "Assets/Images/helicoptero.png"
-IMG_TROPHY = "Assets/Images/trophy.png"
+IMG_TROPHY = "Assets/Images/trofeu.png" 
 
 # Áudio
 MUSIC_MENU = "Assets/Audio/menu_theme.ogg"
 SFX_LOSE = "Assets/Audio/lose_effect.wav"
 SFX_SIREN_LOOP = "Assets/Audio/siren_loop.ogg"
-# ALTERADO: O som do tiro agora é um efeito único
 SFX_GUNSHOT = "Assets/Audio/gunshot.wav" 
 
 # --- NOVO: CONFIGURAÇÕES DE ÁUDIO ---
-VOLUME_MUSIC = 0.1  # 50% do volume máximo
-VOLUME_SFX = 0.1    # 60% do volume máximo para sons gerais (derrota, sirene)
-VOLUME_GUNSHOT = 0.02 # NOVO: Volume específico para o tiro (30%)
+VOLUME_MUSIC = 0.1  # volume
+VOLUME_SFX = 0.1    # sons gerais (derrota, sirene)
+VOLUME_GUNSHOT = 0.02 # tiro
 GUNSHOT_INTERVAL = 6.0 # Intervalo em segundos
 
 
@@ -60,7 +59,7 @@ FONT_SIZES = {
     "hud": 40,
     "ach_title_small": 28,
     "ach_desc_small": 22,
-    "instructions_text": 26,      # Novo tamanho para a descrição da conquista
+    "instructions_text": 26,
 }
 
 # --- CONFIGURAÇÕES DO JOGADOR ---

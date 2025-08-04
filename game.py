@@ -1,5 +1,3 @@
-# Ficheiro: game.py (COMPLETO E ATUALIZADO COM TRANSIÇÕES)
-
 import pygame
 from PPlay.window import Window
 import constants as C
@@ -13,7 +11,7 @@ from achievements_scene import AchievementsScene
 from instructions_scene import InstructionsScene
 from notification import Notification
 
-# --- 1. NOVA CLASSE PARA GERIR O EFEITO DE FADE ---
+# --- CLASSE PARA GERIR O EFEITO DE FADE ---
 class Transition:
     def __init__(self, fade_speed, screen_width, screen_height):
         self.fade_speed = fade_speed
@@ -78,11 +76,11 @@ class Game:
 
         # --- Estado do Jogo ---
         self.game_state = "MENU"
-        self.target_state = "" # Para onde vamos após a transição
+        self.target_state = ""
         self.asset_manager.play_music("menu")
         self.notifications = []
         
-        # --- 2. INSTANCIAR A CLASSE DE TRANSIÇÃO ---
+        # --- INSTANCIAR A CLASSE DE TRANSIÇÃO ---
         self.transition = Transition(fade_speed=900, screen_width=C.SCREEN_WIDTH, screen_height=C.SCREEN_HEIGHT)
 
         # --- Instâncias das Cenas ---
@@ -96,7 +94,7 @@ class Game:
     def run(self):
         """Inicia e mantém o loop principal do jogo."""
         while True:
-            # --- 3. LÓGICA DE ESTADOS ATUALIZADA ---
+            # --- LÓGICA DE ESTADOS ATUALIZADA ---
             # O jogo continua a desenhar a cena atual por baixo, mesmo durante a transição
             if self.game_state == "MENU":
                 self.menu.run()
@@ -168,13 +166,14 @@ class Game:
         self.transition.start_fade_in() # Inicia o clareamento
 
     def change_state(self, new_state, session_stats=None):
-        """
-        --- 4. MÉTODO ATUALIZADO ---
-        Em vez de mudar o estado diretamente, agora inicia o fade-out.
-        """
         if self.transition.fading_out or self.transition.fading_in:
-            return # Ignora se uma transição já estiver a acontecer
+            return
 
-        self.target_state = new_state
-        self._session_stats_buffer = session_stats # Guarda os dados da sessão temporariamente
-        self.transition.start_fade_out(on_complete=self._perform_state_change)
+        if new_state == "GAME_OVER":
+            self.target_state = new_state
+            self._session_stats_buffer = session_stats
+            self._perform_state_change() # Chama a troca de cena diretamente, sem o fade.
+        else:
+            self.target_state = new_state
+            self._session_stats_buffer = session_stats
+            self.transition.start_fade_out(on_complete=self._perform_state_change)

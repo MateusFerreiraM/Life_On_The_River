@@ -107,7 +107,7 @@ class Ranking:
             self.window.screen.blit(name_surf, (300, y_pos))
             self.window.screen.blit(score_time_surf, (550, y_pos))
             
-            if self.trophy_icon and i < 3 and "NENHUMA PONTUAÇÃO" not in pos:
+            if self.trophy_icon and i == 0 and "NENHUMA PONTUAÇÃO" not in pos:
                 trophy_rect = self.trophy_icon.get_rect(centery=y_pos + pos_surf.get_height()/2)
                 trophy_rect.right = 200 - 20
                 self.window.screen.blit(self.trophy_icon, trophy_rect)

@@ -1,0 +1,26 @@
+# Arquivos de cache e temporários do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+lib/
+lib64/
+include/
+share/
+bin/
+.env
+
+# Arquivos específicos do projeto
+# O jogo cria arquivos para persistir dados, é bom ignorá-los no Git
+achievements.json
+ranking.txt
+
+# Arquivos de sistema e editor
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*~

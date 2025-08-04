@@ -40,8 +40,6 @@ class Menu:
 
     def _create_buttons(self):
         """Cria as áreas retangulares para os botões do menu."""
-        # --- LINHA ALTERADA ---
-        # Subimos a posição inicial do primeiro botão para que todos subam juntos.
         y_pos = self.window.height / 2 - 70 
         
         for texto in self.opcoes_menu:
@@ -54,8 +52,6 @@ class Menu:
         """Desenha todos os elementos visuais do menu."""
         self.background.draw()
 
-        # --- LINHA ALTERADA ---
-        # Subimos o título do jogo.
         title_surf = self._render_text_with_outline(self.font_gametitle, "Life On The River", self.color_title, self.color_outline, 3)
         title_rect = title_surf.get_rect(center=(self.window.width / 2, 100))
         self.window.screen.blit(title_surf, title_rect)

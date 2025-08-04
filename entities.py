@@ -9,7 +9,7 @@ class MovingObject(Sprite):
     """
     def __init__(self, image_path, object_type, num_frames=1):
         super().__init__(image_path, num_frames)
-        self.image_path = image_path # <-- ADICIONE ESTA LINHA        
+        self.image_path = image_path      
         self.type = object_type
         self.is_active = False
         self.speed = 0

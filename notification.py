@@ -1,4 +1,3 @@
-# Ficheiro: notification.py (COMPLETO E ATUALIZADO)
 import pygame
 import constants as C
 
@@ -17,7 +16,6 @@ class Notification:
         self.color_title = C.COLOR_GOLD
         self.color_text = C.COLOR_WHITE
         
-        # ALTERADO: Posição inicial no centro para animação de subida
         self.start_y = C.SCREEN_HEIGHT / 2
         self.end_y = 50
         self.y_pos = self.start_y
