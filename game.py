@@ -1,52 +1,57 @@
-# game.py
-# Gerencia a janela, o loop principal e as diferentes cenas do jogo.
-
 import pygame
 from PPlay.window import Window
 from menu import Menu
 from gameplay import Gameplay
 from ranking import Ranking
-from game_over import GameOver # Importa a nova cena
+from game_over import GameOver
 
 class Game:
+    """
+    Classe principal que gere a janela, o loop de jogo e os estados (cenas).
+    """
     def __init__(self):
-        """Inicializa a janela e os componentes principais do jogo."""
-        pygame.init() # Inicializa o pygame para o input de texto
+        # --- Inicialização do Pygame e da Janela ---
+        pygame.init()
         self.window = Window(1000, 600)
         self.window.set_title("Fuga no Rio")
         
+        # O estado inicial do jogo é o menu principal.
         self.game_state = "MENU"
 
-        # Cria instâncias de todas as cenas
+        # --- Instâncias das Cenas ---
+        # Cada cena do jogo é representada por um objeto.
         self.menu = Menu(self.window, self)
         self.gameplay = Gameplay(self.window, self)
         self.ranking = Ranking(self.window, self)
-        self.game_over = GameOver(self.window, self) # Cria a instância do Game Over
+        self.game_over = GameOver(self.window, self)
 
     def run(self):
-        """O loop principal do jogo."""
+        """Inicia e mantém o loop principal do jogo."""
         while True:
+            # --- Máquina de Estados ---
+            # Verifica o estado atual e executa a cena correspondente.
             if self.game_state == "MENU":
                 self.menu.run()
             elif self.game_state == "PLAYING":
                 self.gameplay.run()
             elif self.game_state == "RANKING":
                 self.ranking.run()
-            elif self.game_state == "GAME_OVER": # Adiciona o novo estado
+            elif self.game_state == "GAME_OVER":
                 self.game_over.run()
             elif self.game_state == "EXIT":
-                break
+                break  # Quebra o loop para encerrar o jogo.
             
+            # Atualiza a janela no final de cada frame.
             self.window.update()
 
     def change_state(self, new_state, score=0, time=0):
         """
-        Método central para mudar de cena, agora pode passar dados.
+        Método central para a transição entre cenas. Pode passar dados
+        como pontuação e tempo para a próxima cena.
         """
         self.game_state = new_state
         
         if new_state == "PLAYING":
             self.gameplay.reset()
         elif new_state == "GAME_OVER":
-            # Passa as estatísticas para a tela de Game Over
             self.game_over.set_final_stats(score, time)

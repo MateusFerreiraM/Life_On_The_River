@@ -3,77 +3,85 @@ from PPlay.gameimage import GameImage
 from PPlay.mouse import Mouse
 
 class Menu:
+    """
+    Gere a cena do menu principal, incluindo o título e os botões.
+    """
     def __init__(self, window, game):
-        """Inicializa a cena do menu."""
         self.window = window
         self.game = game
         self.mouse = Mouse()
 
         self.background = GameImage("Assets/Images/menu_background.png")
-
         try:
-            self.font = pygame.font.Font("Assets/Fonts/pricedown bl.ttf", 50)
+            self.font_gametitle = pygame.font.Font("Assets/Fonts/pricedown bl.ttf", 100)
+            self.font_button = pygame.font.Font("Assets/Fonts/pricedown bl.ttf", 50)
         except FileNotFoundError:
-            print("AVISO: Fonte 'Assets/Fonts/pricedown bl.ttf' não encontrada. Usando fonte padrão.")
-            self.font = pygame.font.Font(None, 60)
+            self.font_gametitle = pygame.font.Font(None, 120)
+            self.font_button = pygame.font.Font(None, 60)
         
-        self.cor_texto_padrao = (255, 255, 255)
-        self.cor_texto_hover = (255, 215, 0)
+        self.color_title = (255, 215, 0)
+        self.color_text = (255, 255, 255)
+        self.color_hover = (255, 215, 0)
+        self.color_outline = (0, 0, 0)
 
         self.opcoes_menu = ["Jogar", "Ranking", "Sair"]
-        self.botoes = []
-        self.botoes_renderizados = []
+        self.buttons = {}
+        self._create_buttons()
         
-        self._criar_botoes()
+        # Cooldown para o clique do rato
+        self.click_cooldown = 0.5
+        self.last_click_time = 0
 
-    def _criar_botoes(self):
-        """Cria os retângulos e renderiza os textos para cada botão, centralizando-os."""
-        padding_vertical = 20
-        
-        altura_texto = self.font.get_height()
-        altura_total_menu = (len(self.opcoes_menu) * altura_texto) + ((len(self.opcoes_menu) - 1) * padding_vertical)
-        
-        pos_y_inicial = (self.window.height - altura_total_menu) / 2
+    def _render_text_with_outline(self, font, text, color, outline_color, outline_width=2):
+        """Função auxiliar para renderizar texto com um contorno para legibilidade."""
+        text_surface = font.render(text, True, color)
+        outline_surface = font.render(text, True, outline_color)
+        final_surface = pygame.Surface((text_surface.get_width() + outline_width * 2, text_surface.get_height() + outline_width * 2), pygame.SRCALPHA)
+        positions = [(0, 0), (outline_width, 0), (outline_width * 2, 0), (0, outline_width), (outline_width * 2, outline_width), (0, outline_width * 2), (outline_width, outline_width * 2), (outline_width * 2, outline_width * 2)]
+        for pos in positions: final_surface.blit(outline_surface, pos)
+        final_surface.blit(text_surface, (outline_width, outline_width))
+        return final_surface
 
-        for i, texto in enumerate(self.opcoes_menu):
-            largura_texto, altura_texto_individual = self.font.size(texto)
-            pos_x = (self.window.width - largura_texto) / 2
-            pos_y = pos_y_inicial + i * (altura_texto_individual + padding_vertical)
-            
-            retangulo_botao = pygame.Rect(pos_x, pos_y, largura_texto, altura_texto_individual)
-            self.botoes.append(retangulo_botao)
-
-            texto_padrao = self.font.render(texto, True, self.cor_texto_padrao)
-            texto_hover = self.font.render(texto, True, self.cor_texto_hover)
-            self.botoes_renderizados.append({"padrao": texto_padrao, "hover": texto_hover})
+    def _create_buttons(self):
+        """Cria as áreas retangulares para os botões do menu."""
+        y_pos = self.window.height / 2
+        for texto in self.opcoes_menu:
+            rect = pygame.Rect(0, 0, 300, 60)
+            rect.center = (self.window.width / 2, y_pos)
+            self.buttons[texto] = rect
+            y_pos += 80
 
     def _desenhar(self):
-        """Desenha todos os elementos do menu na tela."""
+        """Desenha todos os elementos visuais do menu."""
         self.background.draw()
 
-        for i, botao_rect in enumerate(self.botoes):
-            posicao_mouse = self.mouse.get_position()
-            
-            if botao_rect.collidepoint(posicao_mouse):
-                texto_para_desenhar = self.botoes_renderizados[i]["hover"]
-            else:
-                texto_para_desenhar = self.botoes_renderizados[i]["padrao"]
-            
-            self.window.screen.blit(texto_para_desenhar, botao_rect.topleft)
+        title_surf = self._render_text_with_outline(self.font_gametitle, "Life On The River", self.color_title, self.color_outline, 3)
+        title_rect = title_surf.get_rect(center=(self.window.width / 2, 130))
+        self.window.screen.blit(title_surf, title_rect)
+
+        mouse_pos = self.mouse.get_position()
+        for texto, rect in self.buttons.items():
+            button_color = self.color_hover if rect.collidepoint(mouse_pos) else self.color_text
+            button_surf = self._render_text_with_outline(self.font_button, texto.upper(), button_color, self.color_outline)
+            button_rect = button_surf.get_rect(center=rect.center)
+            self.window.screen.blit(button_surf, button_rect)
 
     def _verificar_cliques(self):
-        """Verifica se algum botão foi clicado e muda o estado do jogo."""
-        if self.mouse.is_button_pressed(1):
-            posicao_mouse = self.mouse.get_position()
+        """Verifica cliques do rato nos botões e muda o estado do jogo."""
+        self.last_click_time += self.window.delta_time()
+
+        if self.mouse.is_button_pressed(1) and self.last_click_time > self.click_cooldown:
+            self.last_click_time = 0
+            mouse_pos = self.mouse.get_position()
             
-            if self.botoes[0].collidepoint(posicao_mouse):
+            if self.buttons["Jogar"].collidepoint(mouse_pos):
                 self.game.change_state("PLAYING")
-            elif self.botoes[1].collidepoint(posicao_mouse):
+            elif self.buttons["Ranking"].collidepoint(mouse_pos):
                 self.game.change_state("RANKING")
-            elif self.botoes[2].collidepoint(posicao_mouse):
+            elif self.buttons["Sair"].collidepoint(mouse_pos):
                 self.game.change_state("EXIT")
 
     def run(self):
-        """Executa a lógica do menu a cada frame."""
+        """Loop principal da cena do menu."""
         self._desenhar()
         self._verificar_cliques()

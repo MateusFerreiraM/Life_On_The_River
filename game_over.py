@@ -1,13 +1,13 @@
-# game_over.py
-# Gere a cena de Game Over, focada em salvar a pontuação.
-
 import pygame
 import string
 from PPlay.mouse import Mouse
 
 class GameOver:
+    """
+    Gere a cena de Game Over, mostrando estatísticas e capturando
+    o nome do jogador para o ranking.
+    """
     def __init__(self, window, game):
-        """Inicializa a cena de Game Over."""
         self.window = window
         self.game = game
         self.keyboard = self.window.get_keyboard()
@@ -33,11 +33,12 @@ class GameOver:
         self.final_score = 0
         self.time_survived = 0
         
+        # --- Lógica de Input de Texto ---
         self.keys_to_check = list(string.ascii_lowercase + string.digits) + ["backspace", "space", "enter"]
         self.last_key_state = {key: False for key in self.keys_to_check}
 
     def set_final_stats(self, score, time):
-        """Recebe as estatísticas finais da cena de gameplay."""
+        """Recebe e armazena as estatísticas finais da partida."""
         self.final_score = score
         self.time_survived = time
         self.player_name = ""
@@ -45,7 +46,7 @@ class GameOver:
         self.last_key_state = {key: False for key in self.keys_to_check}
 
     def _handle_text_input(self):
-        """Gere o input do teclado usando a lógica de verificação de estado."""
+        """Gere o input do teclado para a caixa de nome."""
         if self.score_saved: return
 
         for key in self.keys_to_check:
@@ -62,13 +63,13 @@ class GameOver:
             self.last_key_state[key] = key_is_pressed
 
     def save_score_and_exit(self):
-        """Salva a pontuação e muda para a tela de ranking."""
+        """Salva a pontuação e o tempo no ficheiro e muda para a tela de ranking."""
         if self.score_saved: return
         
         name_to_save = self.player_name.strip() if self.player_name.strip() else "JOGADOR"
         try:
             with open("ranking.txt", "a") as file:
-                file.write(f"{name_to_save}#{self.final_score}\n")
+                file.write(f"{name_to_save}#{self.final_score}#{self.time_survived:.2f}\n")
             self.score_saved = True
             self.game.change_state("RANKING")
         except Exception as e:
@@ -78,7 +79,7 @@ class GameOver:
         """Desenha todos os elementos da tela."""
         self.window.set_background_color([20, 20, 20])
 
-        title_surf = self.font_title.render("GAME OVER", True, self.color_title)
+        title_surf = self.font_title.render("Se Ferrou!!!", True, self.color_title)
         title_rect = title_surf.get_rect(center=(self.window.width / 2, 80))
         self.window.screen.blit(title_surf, title_rect)
 
@@ -98,12 +99,11 @@ class GameOver:
 
         save_text = "Pressione ENTER para Salvar e ver o Ranking" if not self.score_saved else "PONTUAÇÃO SALVA!"
         save_color = self.color_text if not self.score_saved else (100, 100, 100)
-        
         save_surf = self.font_input.render(save_text, True, save_color)
         save_rect = save_surf.get_rect(center=(self.window.width / 2, 450))
         self.window.screen.blit(save_surf, save_rect)
 
     def run(self):
-        """Executa o loop da cena de Game Over."""
+        """Loop principal da cena de Game Over."""
         self._handle_text_input()
         self._draw()
