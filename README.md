@@ -1,4 +1,4 @@
-# 🏞️ Life On The River
+# Life On The River
 
 | Menu | Gameplay | Conquistas |
 |:---:|:---:|:---:|
@@ -24,8 +24,8 @@ Um jogo de corrida infinita em 2D desenvolvido em Python. Assuma o controle de u
 
 * **Linguagem:** Python 3.11
 * **Bibliotecas Principais:**
-    * [Pygame](https://www.pygame.org/) - A base para toda a lógica de jogo, renderização e gerenciamento de eventos.
-    * [PPlay Game Engine](http://www2.ic.uff.br/pplay/) - Uma biblioteca wrapper sobre o Pygame para facilitar a manipulação de sprites, animações, som e janelas.
+    * [Pygame](https://www.pygame.org/) - A base para toda a lógica de jogo e renderização.
+    * [PPlay Game Engine](https://github.com/pplay-gengine/pplay) - Uma biblioteca wrapper sobre o Pygame para facilitar a manipulação de sprites e janelas.
 
 ---
 
@@ -40,7 +40,7 @@ Siga os passos abaixo para rodar o jogo "Fuga no Rio" na sua máquina local.
 
 ### Instalação
 
-1.  **Clone o repositório:**
+1.  **Clone o repositório:**
     ```sh
     git clone [https://github.com/MateusFerreiraM/Life_On_The_River.git](https://github.com/MateusFerreiraM/Life_On_The_River.git)
     cd Life_On_The_River
