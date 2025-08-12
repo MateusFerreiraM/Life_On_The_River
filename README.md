@@ -42,7 +42,7 @@ Siga os passos abaixo para rodar o jogo "Fuga no Rio" na sua máquina local.
 
 1.  **Clone o repositório:**
     ```sh
-    git clone [https://github.com/MateusFerreiraM/Life_On_The_River.git](https://github.com/MateusFerreiraM/Life_On_The_River.git)
+    git clone https://github.com/MateusFerreiraM/Life_On_The_River.git
     cd Life_On_The_River
     ```
 
