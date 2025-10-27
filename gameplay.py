@@ -243,22 +243,6 @@ class Gameplay:
                         self.game.change_state("GAME_OVER", session_stats=self.session_stats)
                         return
                     
-    def _update_dodges(self):
-        """Verifica objetos que saíram da tela e conta como desvio."""
-        all_objects = []
-        for pool in self.spawner.object_pool.values(): all_objects.extend(pool)
-        
-        for obj in all_objects:
-            # O método update agora retorna True se o objeto saiu da tela
-            if obj.update(self.game_speed, self.window.delta_time()):
-                if obj.type == "obstacle":
-                    if "viatura" in obj.image_path:
-                        self.session_stats["cars_dodged"] += 1
-                    elif "bala" in obj.image_path:
-                        self.session_stats["bullets_dodged"] += 1
-                    elif "helicoptero" in obj.image_path:
-                        pass
-
     def _handle_timed_sfx(self, delta_time):
         self.gunshot_timer += delta_time
         if self.gunshot_timer >= C.GUNSHOT_INTERVAL:
@@ -280,8 +264,17 @@ class Gameplay:
             # Atualizações
             self.scenery.update(scenery_move_delta)
             self.player.update(self.keyboard, delta_time)
-            self.spawner.update(self.game_speed, self.score, delta_time)
-            self._update_dodges()
+            
+            # Atualiza spawner e conta objetos desviados
+            dodged_objects = self.spawner.update_and_count_dodges(self.game_speed, self.score, delta_time)
+            for obj_type in dodged_objects:
+                if obj_type == "viatura":
+                    self.session_stats["cars_dodged"] += 1
+                elif obj_type == "helicoptero":
+                    self.session_stats["cars_dodged"] += 1  # Helicópteros contam como carros
+                elif obj_type == "bullet":
+                    self.session_stats["bullets_dodged"] += 1
+            
             self._handle_timed_sfx(delta_time) # Chama o gestor do tiro
             
             # Colisões e Pontuação
