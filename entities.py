@@ -140,6 +140,44 @@ class Spawner:
         for pool in self.object_pool.values():
             for obj in pool:
                 obj.update(game_speed, delta_time)
+                
+    def update_and_count_dodges(self, game_speed, score, delta_time):
+        """Atualiza o spawner e retorna lista de objetos que saíram da tela (foram desviados)."""
+        # Atualiza spawn de novos objetos
+        self.spawn_timer += delta_time
+        
+        difficulty_factor = score // 100
+        current_min_cooldown = max(C.MIN_COOLDOWN_CAP, self.min_spawn_cooldown - difficulty_factor * C.DIFFICULTY_COOLDOWN_FACTOR)
+        current_max_cooldown = max(C.MAX_COOLDOWN_CAP, self.max_spawn_cooldown - difficulty_factor * C.DIFFICULTY_COOLDOWN_FACTOR)
+
+        if self.spawn_timer >= self.time_to_next_spawn:
+            self.spawn_timer = 0
+            self.time_to_next_spawn = random.uniform(current_min_cooldown, current_max_cooldown)
+            
+            if score < 500:
+                current_pool = self.phase1_pool
+            elif score < 1000:
+                current_pool = self.phase2_pool
+            else:
+                current_pool = self.phase3_pool
+                
+            object_type_to_spawn = random.choice(current_pool)
+            self.spawn_object(object_type_to_spawn, game_speed)
+
+        # Atualiza objetos e conta os que saíram da tela
+        dodged_objects = []
+        for pool in self.object_pool.values():
+            for obj in pool:
+                if obj.is_active and obj.update(game_speed, delta_time):
+                    # Objeto saiu da tela, identifica o tipo para contagem
+                    if "viatura" in obj.image_path:
+                        dodged_objects.append("viatura")
+                    elif "helicoptero" in obj.image_path:
+                        dodged_objects.append("helicoptero")
+                    elif "tiro" in obj.image_path or "bala" in obj.image_path:
+                        dodged_objects.append("bullet")
+                        
+        return dodged_objects
 
     def spawn_object(self, object_type, game_speed):
         """Ativa um objeto inativo do tipo e camada corretos."""

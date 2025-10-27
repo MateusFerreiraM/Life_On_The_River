@@ -58,6 +58,7 @@ class AchievementManager:
         Retorna uma lista de títulos de conquistas recém-desbloqueadas.
         """
         # Atualiza estatísticas totais
+        self.stats["total_score"] += session_stats.get("score", 0)
         self.stats["total_money_bags"] += session_stats.get("money_bags", 0)
         self.stats["total_cars_dodged"] += session_stats.get("cars_dodged", 0)
         self.stats["total_bullets_dodged"] += session_stats.get("bullets_dodged", 0)
@@ -87,7 +88,7 @@ class AchievementManager:
                     data["unlocked"] = True
                     newly_unlocked.append(data["title"])
 
-        if newly_unlocked:
-            self.save_progress()
+        # CORREÇÃO: Sempre salva o progresso para persistir as estatísticas
+        self.save_progress()
             
         return newly_unlocked

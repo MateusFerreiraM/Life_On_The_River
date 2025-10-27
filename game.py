@@ -109,6 +109,8 @@ class Game:
             elif self.game_state == "INSTRUCTIONS":
                 self.instructions_scene.run()
             elif self.game_state == "EXIT":
+                # Salva o progresso antes de sair
+                self.achievement_manager.save_progress()
                 break
 
             # --- ATUALIZA E DESENHA TRANSIÇÕES E NOTIFICAÇÕES (SEMPRE POR CIMA) ---
